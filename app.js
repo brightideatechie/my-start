@@ -76,10 +76,10 @@ const $ = (sel) => document.querySelector(sel);
 
 function escapeHtml(str) {
   return String(str)
-    .replaceAll('&', '&')
-    .replaceAll('<', '<')
-    .replaceAll('>', '>')
-    .replaceAll('"', '"')
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
     .replaceAll("'", '&#39;');
 }
 
@@ -93,8 +93,7 @@ function sanitizeUrl(url) {
 function normalizeUrl(url) {
   const u = String(url || '').trim();
   if (!u) return '';
-  if (/^https?:\/\//i.test(u)) return u;
-  return 'https://' + u;
+  return sanitizeUrl(u);
 }
 
 function toast(message) {
@@ -429,7 +428,10 @@ ${markup}  </div>
       if (!g) return;
       var h = new Date().getHours();
       var t = h < 5 ? 'Up late' : h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening';
-      g.innerHTML = t + ', <strong>${escapeHtml(config.name || 'friend')}</strong>';
+      g.replaceChildren(document.createTextNode(t + ', '));
+      var strong = document.createElement('strong');
+      strong.textContent = ${JSON.stringify(config.name || 'friend').replace(/</g, '\\u003c')};
+      g.appendChild(strong);
     })();
     // Clock
     (function tick() {
@@ -546,7 +548,12 @@ function importJson(file) {
       if (!data || typeof data !== 'object' || !Array.isArray(data.categories)) {
         throw new Error('missing categories');
       }
+      if (!data.categories.every(cat => cat && typeof cat.name === 'string' && Array.isArray(cat.links) && cat.links.every(link => link && typeof link.name === 'string' && typeof link.url === 'string' && (link.emoji === undefined || typeof link.emoji === 'string')))) throw new Error('invalid categories');
       config = Object.assign(structuredClone(DEFAULT_CONFIG), data);
+      config.theme = Object.hasOwn(THEMES, config.theme) ? config.theme : 'midnight';
+      config.engine = Object.hasOwn(ENGINES, config.engine) ? config.engine : 'duckduckgo';
+      config.background = ['glow', 'gradient', 'flat'].includes(config.background) ? config.background : 'glow';
+      config.accent = /^#[0-9a-fA-F]{6}$/.test(config.accent) ? config.accent : null;
       config.accent = data.accent || null;
       renderAll();
       toast('Config imported');
