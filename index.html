@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>My Start — Perchance-style startpage generator</title>
+  <meta name="description" content="My Start: design a personal browser startpage with links, search, themes and a live preview. Export a standalone HTML file or ready-to-paste Perchance generator code. Powered by Bright Idea Technology Solutions LLC." />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23171311'/%3E%3Cpath d='M16 6c-5.5 0-10 3.8-10 8.5 0 2.6 1.5 4.9 3.8 6.4-.3 1.1-1 2.1-1.9 2.9 1.5-.2 2.9-.7 4.1-1.5 1.2.4 2.6.6 4 .6 5.5 0 10-3.8 10-8.5S21.5 6 16 6z' fill='%23f0954a'/%3E%3C/svg%3E" />
+  <link rel="preconnect" href="https://api.fontshare.com" />
+  <link href="https://api.fontshare.com/v2/css?f[]=clash-display@500,600&f[]=satoshi@400,500,700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <svg class="brand-mark" width="34" height="34" viewBox="0 0 32 32" aria-hidden="true">
+        <rect width="32" height="32" rx="8" fill="var(--ember)" fill-opacity="0.14" />
+        <path d="M16 6c-5.5 0-10 3.8-10 8.5 0 2.6 1.5 4.9 3.8 6.4-.3 1.1-1 2.1-1.9 2.9 1.5-.2 2.9-.7 4.1-1.5 1.2.4 2.6.6 4 .6 5.5 0 10-3.8 10-8.5S21.5 6 16 6z" fill="var(--ember)" />
+      </svg>
+      <div>
+        <h1 class="brand-name">My Start</h1>
+        <p class="brand-sub">A perchance-style startpage generator platform · <a class="brand-link" href="https://perchance.org/mystart" target="_blank" rel="noopener">perchance.org/mystart</a></p>
+      </div>
+    </div>
+    <div class="topbar-actions">
+      <button type="button" class="btn btn-ghost" data-testid="button-import-json" id="btn-import">Import config</button>
+      <button type="button" class="btn btn-ghost" data-testid="button-export-json" id="btn-export-json">Save config</button>
+      <button type="button" class="btn btn-ghost" data-testid="button-reset" id="btn-reset">Reset</button>
+      <button type="button" class="btn btn-primary" data-testid="button-export-html" id="btn-export-html">Export HTML</button>
+      <button type="button" class="btn btn-primary" data-testid="button-export-perchance" id="btn-export-perchance">Perchance code</button>
+    </div>
+    <input type="file" id="file-input" accept="application/json" class="sr-only" aria-label="Import config file" />
+  </header>
+
+  <main class="workbench">
+    <aside class="editor" aria-label="Startpage editor">
+      <section class="panel">
+        <h2 class="panel-title">Identity</h2>
+        <div class="field">
+          <label for="input-greeting">Greeting</label>
+          <input type="text" id="input-greeting" data-testid="input-greeting" maxlength="60" />
+        </div>
+        <div class="field">
+          <label for="input-name">Your name</label>
+          <input type="text" id="input-name" data-testid="input-name" maxlength="40" />
+        </div>
+        <div class="switch-row">
+          <label for="toggle-clock">Clock & time-based greeting</label>
+          <button type="button" class="switch" id="toggle-clock" data-testid="toggle-clock" role="switch" aria-checked="true"><span class="switch-thumb"></span></button>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2 class="panel-title">Search</h2>
+        <div class="switch-row">
+          <label for="toggle-search">Show search bar</label>
+          <button type="button" class="switch" id="toggle-search" data-testid="toggle-search" role="switch" aria-checked="true"><span class="switch-thumb"></span></button>
+        </div>
+        <div class="field">
+          <label for="select-engine">Search engine</label>
+          <select id="select-engine" data-testid="select-engine"></select>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2 class="panel-title">Links</h2>
+        <div id="categories-editor" data-testid="categories-editor"></div>
+        <button type="button" class="btn btn-ghost btn-block" data-testid="button-add-category" id="btn-add-category">+ Add category</button>
+      </section>
+
+      <section class="panel">
+        <h2 class="panel-title">Theme</h2>
+        <div class="field">
+          <label>Palette</label>
+          <div class="theme-swatches" id="theme-swatches" role="radiogroup" aria-label="Palette"></div>
+        </div>
+        <div class="field">
+          <label for="input-accent">Accent color</label>
+          <div class="accent-row">
+            <input type="color" id="input-accent" data-testid="input-accent" value="#7cc4ff" />
+            <button type="button" class="btn btn-ghost btn-sm" data-testid="button-accent-reset" id="btn-accent-reset">Use palette default</button>
+          </div>
+        </div>
+        <div class="field">
+          <label for="select-background">Background</label>
+          <select id="select-background" data-testid="select-background">
+            <option value="glow">Soft glow</option>
+            <option value="gradient">Diagonal gradient</option>
+            <option value="flat">Flat</option>
+          </select>
+        </div>
+      </section>
+    </aside>
+
+    <section class="preview-zone" aria-label="Live preview">
+      <div class="preview-toolbar">
+        <h2 class="preview-title">Live preview</h2>
+        <div class="viewport-toggle" role="group" aria-label="Preview width">
+          <button type="button" class="vp-btn is-active" data-testid="button-vp-desktop" data-vp="desktop">Desktop</button>
+          <button type="button" class="vp-btn" data-testid="button-vp-mobile" data-vp="mobile">Mobile</button>
+        </div>
+      </div>
+      <div class="preview-frame" id="preview-frame">
+        <div class="sp-scope" id="preview-root"></div>
+      </div>
+      <p class="preview-note">The exported file is fully self-contained: one HTML file, no dependencies, works offline as your browser homepage.</p>
+    </section>
+  </main>
+
+  <div class="modal-backdrop" id="perchance-modal" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <div class="modal-head">
+        <h3 id="modal-title">Perchance generator code</h3>
+        <button type="button" class="btn btn-ghost btn-sm" data-testid="button-close-modal" id="btn-close-modal">Close</button>
+      </div>
+      <p class="modal-hint">Paste this into the <strong>My Start</strong> generator at <a href="https://perchance.org/mystart#edit" target="_blank" rel="noopener">perchance.org/mystart</a> (open the code editor view). The greeting and message randomize on every load.</p>
+      <pre class="code-block" id="perchance-code" tabindex="0"></pre>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-primary" data-testid="button-copy-perchance" id="btn-copy-perchance">Copy code</button>
+        <button type="button" class="btn btn-ghost" data-testid="button-download-perchance" id="btn-download-perchance">Download .txt</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+  <footer class="site-footer">
+    <p><strong>My Start</strong> — coming soon to <a href="https://mystart.imine.me" target="_blank" rel="noopener">mystart.imine.me</a></p>
+    <p>Powered by <a href="https://brightideatech.com" target="_blank" rel="noopener">Bright Idea Technology Solutions LLC</a></p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
