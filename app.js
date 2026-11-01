@@ -85,8 +85,8 @@ function escapeHtml(str) {
 
 function sanitizeUrl(url) {
   const u = String(url || '').trim();
-  if (/^https?:\/\//i.test(u)) return u;
-  if (/^[\w.-]+\.[a-z]{2,}([/?#].*)?$/i.test(u)) return 'https://' + u;
+  if (/^https?:\/\//i.test(u)) { try { const parsed = new URL(u); return parsed.hostname && !parsed.username && !parsed.password ? parsed.href : ''; } catch { return ''; } }
+  if (/^[\w.-]+\.[a-z]{2,}([/?#].*)?$/i.test(u)) return sanitizeUrl('https://' + u);
   return '';
 }
 
@@ -554,7 +554,6 @@ function importJson(file) {
       config.engine = Object.hasOwn(ENGINES, config.engine) ? config.engine : 'duckduckgo';
       config.background = ['glow', 'gradient', 'flat'].includes(config.background) ? config.background : 'glow';
       config.accent = /^#[0-9a-fA-F]{6}$/.test(config.accent) ? config.accent : null;
-      config.accent = data.accent || null;
       renderAll();
       toast('Config imported');
     } catch (err) {
