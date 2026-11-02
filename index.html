@@ -35,6 +35,24 @@
   <main class="workbench">
     <aside class="editor" aria-label="Startpage editor">
       <section class="panel">
+        <h2 class="panel-title">Layout</h2>
+        <div class="field">
+          <label for="select-layout">Startpage layout</label>
+          <select id="select-layout" data-testid="select-layout">
+            <option value="minimal_launcher">Minimal Launcher</option>
+            <option value="focus_card">Focus Card</option>
+            <option value="bookmark_grid">Classic Bookmark Grid</option>
+            <option value="three_column_dashboard">Three-Column Dashboard</option>
+            <option value="bento_grid">Bento Grid</option>
+            <option value="kanban">Kanban Start Page</option>
+            <option value="news_reader">News Reader</option>
+            <option value="command_palette">Command Palette</option>
+          </select>
+          <p class="layout-hint">Changes update the preview and exported page. Advanced widget layouts are coming later.</p>
+        </div>
+      </section>
+
+      <section class="panel">
         <h2 class="panel-title">Identity</h2>
         <div class="field">
           <label for="input-greeting">Greeting</label>
@@ -129,6 +147,6 @@
     <p>Powered by <a href="https://brightideatech.com" target="_blank" rel="noopener">Bright Idea Technology Solutions LLC</a></p>
   </footer>
 
-  <script src="app.js"></script>
+  <script type="module" src="app.js"></script>
 </body>
 </html>
