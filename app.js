@@ -446,7 +446,7 @@ ${startpageCss('')}
   </style>
 </head>
 <body>
-  <div class="startpage">
+  <div class="startpage" data-layout="${config.layout}">
 ${markup}  </div>
   <script>
     // Greeting by time of day
