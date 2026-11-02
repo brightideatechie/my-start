@@ -6,6 +6,8 @@
    ============================================================ */
 'use strict';
 
+import { LAYOUTS, getLayout } from './src/layouts.js';
+
 /* ---------------- Constants ---------------- */
 
 const ENGINES = {
@@ -26,7 +28,8 @@ const THEMES = {
 };
 
 const DEFAULT_CONFIG = {
-  version: 1,
+  version: 2,
+  layout: 'minimal_launcher',
   greeting: 'Welcome back',
   name: 'friend',
   showClock: true,
@@ -149,7 +152,7 @@ function backgroundStyle(p) {
 function startpageCss(scope = '') {
   const p = palette();
   const s = scope; // '' for export, '.sp-scope ' for preview
-  return `${s}.startpage {
+  return `${layoutCss(s)}\n${s}.startpage {
   min-height: 100dvh;
   ${backgroundStyle(p)}
   color: ${p.text};
@@ -303,6 +306,30 @@ ${s}.sp-footer a { color: inherit; }
 
 /* ---------------- Rendering: markup ---------------- */
 
+function layoutCss(s = '') {
+  // These styles are shared by preview and standalone HTML export.
+  return `
+${s}.startpage[data-layout="focus_card"] .sp-hero { padding: 36px; border: 1px solid currentColor; border-radius: 22px; }
+${s}.startpage[data-layout="bookmark_grid"] { gap: 22px; padding-top: 28px; }
+${s}.startpage[data-layout="bookmark_grid"] .sp-categories { width: min(1100px,100%); }
+${s}.startpage[data-layout="three_column_dashboard"] .sp-categories { width: 100%; display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 18px; }
+${s}.startpage[data-layout="three_column_dashboard"] .sp-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
+${s}.startpage[data-layout="bento_grid"] .sp-categories { width: 100%; display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 20px; }
+${s}.startpage[data-layout="bento_grid"] .sp-category:first-child { grid-column: 1/-1; }
+${s}.startpage[data-layout="kanban"] .sp-categories { width: 100%; display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 14px; }
+${s}.startpage[data-layout="kanban"] .sp-category { padding: 16px; border: 1px solid currentColor; border-radius: 14px; }
+${s}.startpage[data-layout="kanban"] .sp-grid { grid-template-columns: 1fr; }
+${s}.startpage[data-layout="news_reader"] .sp-categories { width: min(780px,100%); gap: 12px; }
+${s}.startpage[data-layout="news_reader"] .sp-grid { grid-template-columns: 1fr; }
+${s}.startpage[data-layout="news_reader"] .sp-tile { flex-direction: row; justify-content: flex-start; padding: 10px 18px; }
+${s}.startpage[data-layout="command_palette"] .sp-search { order: -1; width: min(760px,100%); }
+${s}.startpage[data-layout="command_palette"] .sp-hero { font-size: .85em; }
+@container (max-width: 640px) {
+  ${s}.startpage[data-layout] .sp-categories { display: flex; flex-direction: column; }
+  ${s}.startpage[data-layout="three_column_dashboard"] .sp-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
+}`;
+}
+
 function startpageMarkup(forExport = false) {
   const p = palette();
   const engine = ENGINES[config.engine] || ENGINES.duckduckgo;
@@ -361,7 +388,7 @@ function renderPreview() {
   let markup = startpageMarkup(false);
   const options = engineOptions();
   markup = markup.replace('__ENGINE_OPTIONS__', options);
-  root.innerHTML = `<div class="startpage">\n${markup}    </div>`;
+  root.innerHTML = `<div class="startpage" data-layout="${config.layout}">\n${markup}    </div>`;
 
   const styleId = 'preview-style';
   let styleEl = document.getElementById(styleId);
@@ -504,7 +531,7 @@ function buildPerchanceCode() {
     </div>\n`;
 
   return `output
-  <div class="startpage">
+  <div class="startpage" data-layout="${config.layout}">
 ${heroBlock}${searchBlock}${linksHtml}    <footer class="sp-footer">My Start · powered by <a href="https://brightideatech.com">Bright Idea Technology Solutions LLC</a></footer>
   </div>
   <style>
@@ -550,6 +577,7 @@ function importJson(file) {
       }
       if (!data.categories.every(cat => cat && typeof cat.name === 'string' && Array.isArray(cat.links) && cat.links.every(link => link && typeof link.name === 'string' && typeof link.url === 'string' && (link.emoji === undefined || typeof link.emoji === 'string')))) throw new Error('invalid categories');
       config = Object.assign(structuredClone(DEFAULT_CONFIG), data);
+      config.layout = getLayout(config.layout) ? config.layout : 'minimal_launcher';
       config.theme = Object.hasOwn(THEMES, config.theme) ? config.theme : 'midnight';
       config.engine = Object.hasOwn(ENGINES, config.engine) ? config.engine : 'duckduckgo';
       config.background = ['glow', 'gradient', 'flat'].includes(config.background) ? config.background : 'glow';
@@ -706,6 +734,7 @@ function renderCategoriesEditor() {
 }
 
 function renderAll() {
+  $('#select-layout').value = config.layout;
   renderIdentity();
   renderThemeSwatches();
   renderCategoriesEditor();
@@ -715,6 +744,7 @@ function renderAll() {
 /* ---------------- Event wiring ---------------- */
 
 function wireEvents() {
+  $('#select-layout').addEventListener('change', e => { if (getLayout(e.target.value)) { config.layout = e.target.value; renderPreview(); } });
   $('#input-greeting').addEventListener('input', (e) => { config.greeting = e.target.value; renderPreview(); });
   $('#input-name').addEventListener('input', (e) => { config.name = e.target.value; renderPreview(); });
 
